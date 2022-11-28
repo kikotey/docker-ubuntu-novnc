@@ -27,6 +27,53 @@ RUN apt-get update \
         xvfb x11vnc \
         vim-tiny ttf-ubuntu-font-family ttf-wqy-zenhei
 
+# install docker
+RUN sudo apt-get -y update
+RUN sudo apt-get -y install ca-certificates curl gnupg lsb-release
+RUN sudo mkdir -p /etc/apt/keyrings
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+RUN sudo apt-get -y update
+RUN sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+
+# install other lib
+RUN sudo apt -y update
+RUN sudo apt -y upgrade
+RUN sudo apt -y install git
+
+RUN sudo apt search golang-go
+RUN sudo apt search gccgo-go
+
+RUN sudo apt -y install golang-go 
+RUN touch ~/.bash_profile
+RUN . ~/.bash_profile
+
+
+RUN sudo apt -y install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+RUN sudo apt -y install -y nodejs
+
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN touch $HOME/.cargo/env
+RUN . $HOME/.cargo/env
+
+RUN sudo apt search vim
+RUN sudo apt -y install vim
+
+RUN vim --version
+RUN node -v 
+RUN npm -v 
+RUN git --version
+RUN go version
+
+
+RUN echo y | npm install --global yarn
+RUN yarn --version
+RUN echo y | yarn global add expo-cli
+RUN expo --version
+
 # Alternative VNC server
 # RUN apt-get install -y tigervnc-scraping-server
 
