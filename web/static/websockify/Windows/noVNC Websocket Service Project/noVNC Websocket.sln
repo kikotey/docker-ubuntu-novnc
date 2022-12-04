@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "noVNC Websocket", "noVNC Websocket.csproj", "{6B86AE7B-6BBD-4E74-8802-5995E8B6D27D}"

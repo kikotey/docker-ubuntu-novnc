@@ -12,6 +12,8 @@ ENV TZ=Europe/Paris
 # Fix issue with libGL on Windows
 ENV LIBGL_ALWAYS_INDIRECT=1
 
+
+
 # built-in packages
 RUN apt-get update && apt-get upgrade -y && apt-get install apt-utils -y \
     && apt-get install -y --no-install-recommends software-properties-common curl apache2-utils \
@@ -26,53 +28,6 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends --allow-unauthenticated \
         xvfb x11vnc \
         vim-tiny ttf-ubuntu-font-family ttf-wqy-zenhei
-
-# install docker
-RUN sudo apt-get -y update
-RUN sudo apt-get -y install ca-certificates curl gnupg lsb-release
-RUN sudo mkdir -p /etc/apt/keyrings
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-RUN sudo apt-get -y update
-RUN sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-
-# install other lib
-RUN sudo apt -y update
-RUN sudo apt -y upgrade
-RUN sudo apt -y install git
-
-RUN sudo apt search golang-go
-RUN sudo apt search gccgo-go
-
-RUN sudo apt -y install golang-go 
-RUN touch ~/.bash_profile
-RUN . ~/.bash_profile
-
-
-RUN sudo apt -y install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-RUN sudo apt -y install -y nodejs
-
-
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-RUN touch $HOME/.cargo/env
-RUN . $HOME/.cargo/env
-
-RUN sudo apt search vim
-RUN sudo apt -y install vim
-
-RUN vim --version
-RUN node -v 
-RUN npm -v 
-RUN git --version
-RUN go version
-
-
-RUN echo y | npm install --global yarn
-RUN yarn --version
-RUN echo y | yarn global add expo-cli
-RUN expo --version
 
 # Alternative VNC server
 # RUN apt-get install -y tigervnc-scraping-server
@@ -112,10 +67,58 @@ RUN wget https://github.com/krallin/tini/archive/v0.19.0.tar.gz \
 #     && ln -s /usr/bin/ffmpeg /usr/local/ffmpeg/ffmpeg
 
 # NextCloud
-RUN apt-get update && apt-get install -y nextcloud-desktop
+RUN apt-get -y update && apt-get install -y nextcloud-desktop
 
 # Firefox
-RUN apt-get update && apt-get install -y firefox libpci3
+RUN apt-get -y update && apt-get install -y firefox libpci3
+
+#XPAINT
+RUN apt-get -y update && apt-get install -y xpaint
+
+#Gpg agent
+RUN apt-get -y update && apt -y install gpg-agent
+
+#Sublime Text
+RUN wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+RUN echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+RUN sudo apt -y update && sudo apt -y install sublime-text
+
+#Beyond Compare
+RUN wget https://www.scootersoftware.com/bcompare-4.4.4.27058_amd64.deb
+RUN sudo apt -y update && sudo apt -y install ./bcompare-4.4.4.27058_amd64.deb
+RUN sudo rm -Rf ./bcompare-4.4.4.27058_amd64.deb
+
+#Codelite
+RUN sudo apt-key adv --fetch-keys http://repos.codelite.org/CodeLite.asc
+RUN sudo apt-add-repository 'deb https://repos.codelite.org/ubuntu/ focal universe'
+RUN sudo apt -y update && sudo apt-get -y install codelite
+
+#7zip
+RUN sudo add-apt-repository universe
+RUN sudo apt -y update
+RUN sudo apt -y install p7zip-full p7zip-rar
+
+#POSTGRESQL
+RUN sudo apt -y update && sudo apt-get -y install postgresql-12
+RUN curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+RUN sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
+RUN sudo apt -y install pgadmin4
+RUN sudo apt -y install pgadmin4-desktop
+RUN sudo apt -y install pgadmin4-web 
+
+#Sqlite3 and Sqlitebrowser
+RUN sudo apt -y update && sudo apt-get -y install sqlite3
+RUN sudo apt -y update && sudo apt-get -y install sqlitebrowser
+
+#MongoDb 
+RUN sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+RUN echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+RUN sudo apt-get -y update
+RUN sudo apt-get install -y mongodb-org-shell
+
+#Git 
+RUN sudo apt -y update && sudo apt-get -y install git
+RUN sudo apt -y update && sudo apt-get -y install git-gui
 
 # Killsession app
 COPY killsession/ /tmp/killsession
@@ -185,7 +188,7 @@ RUN apt autoremove && apt autoclean
 # merge
 ################################################################################
 FROM system
-LABEL maintainer="frederic.boulanger@centralesupelec.fr"
+LABEL maintainer="jack.crosnierdebellaistre@kikotey.com"
 
 COPY --from=builder /src/web/dist/ /usr/local/lib/web/frontend/
 COPY rootfs /
@@ -196,5 +199,6 @@ EXPOSE 80
 WORKDIR /root
 ENV HOME=/home/ubuntu \
     SHELL=/bin/bash
+
 HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
 ENTRYPOINT ["/startup.sh"]

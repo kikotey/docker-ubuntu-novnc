@@ -1,4 +1,4 @@
-﻿namespace MELT_Command_Websocket
+namespace MELT_Command_Websocket
 {
     partial class Service1
     {
